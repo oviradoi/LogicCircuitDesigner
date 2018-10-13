@@ -79,7 +79,7 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(31, 13);
             this.label4.TabIndex = 30;
-            this.label4.Text = "2010";
+            this.label4.Text = "2018";
             // 
             // label3
             // 
@@ -108,7 +108,7 @@
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(60, 13);
             this.label5.TabIndex = 31;
-            this.label5.Text = "Version 1.5";
+            this.label5.Text = "Version 1.6";
             // 
             // LCDAbout
             // 
