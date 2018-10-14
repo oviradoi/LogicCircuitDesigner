@@ -187,9 +187,6 @@
     <None Include="Resources\Image1.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Image1.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\Image2.bmp" />
   </ItemGroup>
   <ItemGroup>
@@ -233,9 +230,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\top.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\UN.bmp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Undo.bmp" />
