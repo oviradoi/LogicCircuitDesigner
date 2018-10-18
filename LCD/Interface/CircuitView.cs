@@ -25,6 +25,7 @@ namespace LCD.Interface
         private Point MouseDownPosition;
         private bool saved;
         private PrintDocument printDoc=new PrintDocument();
+        private Gate floatingGate = null;
 
         public bool Saved
         {
@@ -209,6 +210,12 @@ namespace LCD.Interface
 
         public void AddGate(Gate g)
         {
+            SelectNone();
+            floatingGate = g;
+            floatingGate.Selected = true;
+            isMouseDownGate = true;
+            MouseDownPosition = new Point(10, 10);
+
             circuit.Gates.Add(g);
             RedrawGates();
 
@@ -363,7 +370,7 @@ namespace LCD.Interface
                         {
                             gate.Location = newLocation;
 
-                            //Saved = false;
+                            Saved = false;
                         }
 
                     }
