@@ -23,8 +23,9 @@ namespace LCD.Interface
         private WirePoint selectedWP = null;
 
         private Point MouseDownPosition;
+        private Point MouseCurrentPosition;
         private bool saved;
-        private PrintDocument printDoc=new PrintDocument();
+        private PrintDocument printDoc = new PrintDocument();
         private Gate floatingGate = null;
 
         public bool Saved
@@ -160,6 +161,14 @@ namespace LCD.Interface
                     lastPoint = currentPoint.Location;
                 }
                 gr.DrawLine(pen, lastPoint, b);
+            }
+
+            if (isMouseDownDot)
+            {
+                Pen pen = new Pen(Settings.Default.WireOffColor);
+                Point absoluteLocation = new Point(selectedDot.Location.X + selectedDot.Parent.Location.X,
+                    selectedDot.Location.Y + selectedDot.Parent.Location.Y);
+                gr.DrawLine(pen, absoluteLocation, MouseCurrentPosition);
             }
 
             if (graph == null) 
@@ -356,6 +365,7 @@ namespace LCD.Interface
 
         private void CircuitView_MouseMove(object sender, MouseEventArgs e)
         {
+            MouseCurrentPosition = e.Location;
             if (Simulating) return;
             if (isMouseDownGate)
             {
@@ -372,7 +382,6 @@ namespace LCD.Interface
 
                             Saved = false;
                         }
-
                     }
                 }
                 MouseDownPosition = e.Location;
@@ -420,6 +429,11 @@ namespace LCD.Interface
                 {
                     lastToolTippedGate = null;
                 }
+            }
+
+            if (isMouseDownDot)
+            {
+                RedrawGates();
             }
 
             //Cross Cursor Code
@@ -492,11 +506,10 @@ namespace LCD.Interface
                     if (d.Parent != selectedDot.Parent)
                     {
                         AddWire(d, selectedDot);
-                        RedrawGates();
                     }
-
                 }
                 isMouseDownDot = false;
+                RedrawGates();
             }
             if (e.Button == MouseButtons.Middle)
             {
