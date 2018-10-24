@@ -228,6 +228,8 @@ namespace LCD.Interface
             SelectNone();
             floatingGate = g;
             floatingGate.Selected = true;
+            if (OnGateSelected != null)
+                OnGateSelected(g);
             isMouseDownGate = true;
             MouseDownPosition = new Point(10, 10);
 
@@ -385,8 +387,6 @@ namespace LCD.Interface
                         if (AcceptMoveAndResize(newLocation, gate))
                         {
                             gate.Location = newLocation;
-
-                            Saved = false;
                         }
                     }
                 }
@@ -602,6 +602,14 @@ namespace LCD.Interface
             foreach (Wire w in wiresInSelectionRectangle)
             {
                 w.Selected = true;
+            }
+
+            if (gatesInSelectionRectangle.Count > 0)
+            {
+                if (OnGateSelected != null)
+                {
+                    OnGateSelected(gatesInSelectionRectangle[0]);
+                }
             }
         }
 
