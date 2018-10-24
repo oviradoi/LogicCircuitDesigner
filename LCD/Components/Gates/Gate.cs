@@ -24,10 +24,46 @@ namespace LCD.Components.Gates
         public virtual void Simulate() { }
         public virtual void Draw(Graphics g) { }
         public virtual void Reset() { }
-//         public virtual void MouseDown() { }
-//         public virtual void MouseUp() { }
         public virtual void MouseDown(MouseEventArgs e) { }
         public virtual void MouseUp(MouseEventArgs e) { }
+
+        public Rectangle GetRectangle()
+        {
+            Rectangle rectangle = Rectangle.Empty;
+            if (Angle > 0 && Angle <= 90)
+            {
+                rectangle.X = Location.X - Size.Height;
+                rectangle.Y = Location.Y;
+                rectangle.Width = Size.Height;
+                rectangle.Height = Size.Width;
+            }
+
+            if (Angle > 90 && Angle <= 180)
+            {
+                rectangle.X = Location.X - Size.Width;
+                rectangle.Y = Location.Y - Size.Height;
+                rectangle.Width = Size.Width;
+                rectangle.Height = Size.Height;
+            }
+
+            if (Angle > 180 && Angle <= 270)
+            {
+                rectangle.X = Location.X;
+                rectangle.Y = Location.Y - Size.Width;
+                rectangle.Width = Size.Height;
+                rectangle.Height = Size.Width;
+            }
+
+            if (Angle > 270 && Angle <= 360 || Angle == 0)
+            {
+                rectangle.X = Location.X;
+                rectangle.Y = Location.Y;
+                rectangle.Width = Size.Width;
+                rectangle.Height = Size.Height;
+            }
+
+            return rectangle;
+        }
 
         public virtual Dot DotOn(Point p)
         {

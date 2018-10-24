@@ -6,7 +6,6 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Drawing;
 using System.Runtime.Serialization;
-//using LCD.Properties.
 using Settings = LCD.Properties.Settings;
 
 namespace LCD.Components.Gates
@@ -18,6 +17,8 @@ namespace LCD.Components.Gates
         private List<Dot> outputs { get; set; }
         private string fileName { get; set; }
         private Circuit circuit { get; set; }
+
+        private static readonly Font textFont = new Font("Arial", 8, FontStyle.Bold);
 
         public override void Simulate()
         {
@@ -44,11 +45,24 @@ namespace LCD.Components.Gates
 
         public override void Draw(Graphics g)
         {
+            string moduleName = null;
+            if (!string.IsNullOrEmpty(fileName))
+            {
+                moduleName = Path.GetFileNameWithoutExtension(fileName);
+            }
+
             int w, h, x, y;
             x = Location.X; y = Location.Y;
             int n = inputs.Capacity>outputs.Capacity?inputs.Capacity:outputs.Capacity;
-            w = 50; h = 6 * (2 * n + 1);
+            h = 6 * (2 * n + 1);
+            SizeF textSize = g.MeasureString(moduleName, textFont);
+            w = !string.IsNullOrEmpty(moduleName) ? (int) textSize.Width + 10 : 50;
             Size = new Size(w, h);
+
+            for (int i = 0; i < outputs.Count; i++)
+            {
+                outputs[i].Location = new Point(w, 2 * (i + 1) * 6 - 3);
+            }
 
             g.TranslateTransform(x, y);
             g.RotateTransform(Angle);
@@ -56,23 +70,13 @@ namespace LCD.Components.Gates
             g.FillRectangle(Brushes.Gray, new Rectangle(0, 0, w, h));
             g.DrawRectangle(Pens.Black, new Rectangle(0, 0, w, h));
 
-            if (fileName != "")
+            if (!string.IsNullOrEmpty(moduleName))
             {
-                int ind = fileName.LastIndexOf('\\');
-                String num = fileName.Remove(0, ind + 1);
-                ind = num.LastIndexOf('.');
-                num = num.Remove(ind);
-                g.DrawString(num, new Font("Arial", 8, FontStyle.Bold), new SolidBrush(Color.White)
-                , new PointF((w - num.Length * 8) / 2, h / 2 - 8));
+                StringFormat sf = new StringFormat();
+                sf.LineAlignment = StringAlignment.Center;
+                sf.Alignment = StringAlignment.Center;
+                g.DrawString(moduleName, textFont, Brushes.White, new RectangleF(0, 0, w, h), sf);
             }
-
-            /*for (int i = 1; i <= n; i++)
-                g.DrawLine(Pens.Black, new Point(0, 2 * i * 6 - 3), new Point(10, 2 * i * 6 - 3));
-
-            g.DrawLine(Pens.Black, new Point(w - 21, h / 2 - 0), new Point(w - 1, h / 2 - 0));
-
-            g.DrawLine(Pens.Black, new Point(10, 0), new Point(10, h - 1));
-            g.DrawArc(Pens.Black, new Rectangle(-7, 0, w - 15, h - 1), -90, 180);*/
 
             foreach (Dot d in inputs)
                 d.Draw(g);
@@ -129,7 +133,7 @@ namespace LCD.Components.Gates
                 if (Math.Abs(p.X) <= Settings.Default.DotRadius && Math.Abs(p.Y - 2 * i * 6 + 3) <= Settings.Default.DotRadius)
                     return inputs[i - 1];
             for (int i = 1; i <= outputs.Capacity; i++)
-                if (Math.Abs(50 - p.X) <= Settings.Default.DotRadius && Math.Abs(p.Y - 2 * i * 6 + 3) <= Settings.Default.DotRadius)
+                if (Math.Abs(Size.Width - p.X) <= Settings.Default.DotRadius && Math.Abs(p.Y - 2 * i * 6 + 3) <= Settings.Default.DotRadius)
                     return outputs[i - 1];
             
             return null;

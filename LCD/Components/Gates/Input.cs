@@ -35,19 +35,6 @@ namespace LCD.Components.Gates
 
             Size = new Size(w, h);
 
-            Pen p;
-
-            if (Selected)
-            {
-                p = new Pen(Color.Blue);
-            }
-            else
-            {
-                p = new Pen(Color.Black);
-            }
-            Pen p1 = new Pen(Color.DimGray, 2f);
-            Pen p2 = new Pen(Color.Pink, 2f);
-
             bool T, M, B, UL, LL, UR, LR;
             T = M = B = UL = LL = UR = LR = false;
             while (val >= 16) val %= 16;
@@ -115,22 +102,23 @@ namespace LCD.Components.Gates
             g.TranslateTransform(x, y);
             g.RotateTransform(Angle);
 
+            Pen p = Selected ? Pens.Blue : Pens.Black;
             g.DrawRectangle(p, 1, 1, w - 2, h - 2);
 
-            g.FillRectangle(new SolidBrush(Color.Gray), 1, 1, w - 2, h - 2);
+            g.FillRectangle(Brushes.Gray, 1, 1, w - 2, h - 2);
 
             Point[] pt = new Point[3];
             pt[0].X = 5; pt[0].Y = 17;
             pt[1].X = 2; pt[1].Y = 24;
             pt[2].X = 8; pt[2].Y = 24;
-            Pen p3 = new Pen(Color.Black);
-            g.DrawPolygon(p3, pt);
+            g.DrawPolygon(Pens.Black, pt);
             pt[0].X = 5; pt[0].Y = 36;
             pt[1].X = 2; pt[1].Y = 30;
             pt[2].X = 8; pt[2].Y = 30;
-            g.DrawPolygon(p3, pt);
+            g.DrawPolygon(Pens.Black, pt);
 
-            
+            Pen p1 = new Pen(Color.DimGray, 2f);
+            Pen p2 = new Pen(Color.Pink, 2f);
 
             g.DrawLine(T ? p2 : p1, 10 + 1, 6, 30 - 1, 6); //Top
             g.DrawLine(M ? p2 : p1, 10 + 1, 27, 30 - 1, 27); //Middle
@@ -147,7 +135,6 @@ namespace LCD.Components.Gates
 
             g.RotateTransform(-Angle);
             g.TranslateTransform(-x, -y);
-
         }
 
         private void CreateDots()
@@ -155,14 +142,10 @@ namespace LCD.Components.Gates
             int x = Location.X;
             int y = Location.Y;
 
-            Dot dotFirstOutput = new Dot(
-                new Point(38, 11), this);
-            Dot dotSecondOutput = new Dot(
-                new Point(38, 22), this);
-            Dot dotThirdOutput = new Dot(
-                new Point(38, 33), this);
-            Dot dotFourthOutput = new Dot(
-                new Point(38, 44), this);
+            Dot dotFirstOutput = new Dot(new Point(38, 11), this);
+            Dot dotSecondOutput = new Dot(new Point(38, 22), this);
+            Dot dotThirdOutput = new Dot(new Point(38, 33), this);
+            Dot dotFourthOutput = new Dot(new Point(38, 44), this);
 
             outputs.Add(dotFirstOutput);
             outputs.Add(dotSecondOutput);
@@ -236,11 +219,6 @@ namespace LCD.Components.Gates
             }
 
             //Draw(graphics);
-        }
-
-        public override void MouseUp(System.Windows.Forms.MouseEventArgs e)
-        {
-            base.MouseUp(e);
         }
     }
 }

@@ -88,11 +88,10 @@ namespace LCD.Interface
 
             tabControl.TabPages.Add(t);
             CircuitView cv = new CircuitView(currentFileName);
-            //cv.Size = t.Size;
             cv.OnGateSelected += new CircuitView.GateSelectedEvent(cv_OnGateSelected);
             cv.Location = new Point(0, 0);
 
-            cv.Dock = DockStyle.None;
+            cv.Dock = DockStyle.Fill;
             t.Controls.Add(cv);
 
             tabControl.SelectedTab = t;
@@ -551,7 +550,7 @@ namespace LCD.Interface
             tp.AutoScroll = true;
             tp.BackColor = Settings.Default.CircuitBackColor;
             tp.Controls.Add(cv);
-            //cv.Dock = DockStyle.Fill;
+            cv.Dock = DockStyle.Fill;
             cv.OnGateSelected += new CircuitView.GateSelectedEvent(cv_OnGateSelected);
             tabControl.TabPages.Add(tp);
 

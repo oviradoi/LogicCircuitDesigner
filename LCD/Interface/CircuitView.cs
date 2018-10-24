@@ -23,8 +23,10 @@ namespace LCD.Interface
         private WirePoint selectedWP = null;
 
         private Point MouseDownPosition;
+        private Point MouseCurrentPosition;
         private bool saved;
-        private PrintDocument printDoc=new PrintDocument();
+        private PrintDocument printDoc = new PrintDocument();
+        private Gate floatingGate = null;
 
         public bool Saved
         {
@@ -43,6 +45,7 @@ namespace LCD.Interface
         private ToolTip toolTip = new ToolTip();
         private Gate lastToolTippedGate = null;
         private Dot lastToolTippedDot = null;
+        private Rectangle selectionRectangle = Rectangle.Empty;
 
         #endregion
 
@@ -161,6 +164,19 @@ namespace LCD.Interface
                 gr.DrawLine(pen, lastPoint, b);
             }
 
+            if (isMouseDownDot)
+            {
+                Pen pen = new Pen(Settings.Default.WireOffColor);
+                Point absoluteLocation = new Point(selectedDot.Location.X + selectedDot.Parent.Location.X,
+                    selectedDot.Location.Y + selectedDot.Parent.Location.Y);
+                gr.DrawLine(pen, absoluteLocation, MouseCurrentPosition);
+            }
+
+            if (selectionRectangle != Rectangle.Empty)
+            {
+                gr.DrawRectangle(Pens.Black, selectionRectangle);
+            }
+
             if (graph == null) 
                 Image = Image;
         }
@@ -209,6 +225,14 @@ namespace LCD.Interface
 
         public void AddGate(Gate g)
         {
+            SelectNone();
+            floatingGate = g;
+            floatingGate.Selected = true;
+            if (OnGateSelected != null)
+                OnGateSelected(g);
+            isMouseDownGate = true;
+            MouseDownPosition = new Point(10, 10);
+
             circuit.Gates.Add(g);
             RedrawGates();
 
@@ -349,6 +373,7 @@ namespace LCD.Interface
 
         private void CircuitView_MouseMove(object sender, MouseEventArgs e)
         {
+            MouseCurrentPosition = e.Location;
             if (Simulating) return;
             if (isMouseDownGate)
             {
@@ -362,10 +387,7 @@ namespace LCD.Interface
                         if (AcceptMoveAndResize(newLocation, gate))
                         {
                             gate.Location = newLocation;
-
-                            //Saved = false;
                         }
-
                     }
                 }
                 MouseDownPosition = e.Location;
@@ -413,6 +435,22 @@ namespace LCD.Interface
                 {
                     lastToolTippedGate = null;
                 }
+            }
+
+            if (isMouseDownDot)
+            {
+                RedrawGates();
+            }
+
+            if (selectionRectangle != Rectangle.Empty)
+            {
+                Point start = MouseDownPosition;
+                Point end = e.Location;
+                selectionRectangle = new Rectangle(Math.Min(start.X, end.X),
+                    Math.Min(start.Y, end.Y),
+                    Math.Abs(start.X - end.X),
+                    Math.Abs(start.Y - end.Y));
+                RedrawGates();
             }
 
             //Cross Cursor Code
@@ -485,12 +523,19 @@ namespace LCD.Interface
                     if (d.Parent != selectedDot.Parent)
                     {
                         AddWire(d, selectedDot);
-                        RedrawGates();
                     }
-
                 }
                 isMouseDownDot = false;
+                RedrawGates();
             }
+
+            if (selectionRectangle != Rectangle.Empty)
+            {
+                SelectComponentsInSelectionRectangle();
+                selectionRectangle = Rectangle.Empty;
+                RedrawGates();
+            }
+
             if (e.Button == MouseButtons.Middle)
             {
                 Wire wire = WireOn(e.Location);
@@ -509,6 +554,63 @@ namespace LCD.Interface
                 }
             }
             selectedWP = null;
+        }
+
+        private void SelectComponentsInSelectionRectangle()
+        {
+            List<Gate> gatesInSelectionRectangle = new List<Gate>();
+            List<Wire> wiresInSelectionRectangle = new List<Wire>();
+
+            foreach (Gate gate in circuit.Gates)
+            {
+                Rectangle gateRectangle = gate.GetRectangle();
+
+                if (gateRectangle.IntersectsWith(selectionRectangle))
+                {
+                    if (!gatesInSelectionRectangle.Contains(gate))
+                    {
+                        gatesInSelectionRectangle.Add(gate);
+                    }
+                }
+                else
+                {
+                    if (gatesInSelectionRectangle.Contains(gate))
+                    {
+                        gatesInSelectionRectangle.Remove(gate);
+                    }
+                }
+
+            }
+
+            foreach (Wire wire in circuit.Wires)
+            {
+                if (gatesInSelectionRectangle.Contains(wire.src.Parent) && gatesInSelectionRectangle.Contains(wire.dst.Parent))
+                {
+                    if (!wiresInSelectionRectangle.Contains(wire))
+                    {
+                        wiresInSelectionRectangle.Add(wire);
+                    }
+                }
+            }
+
+            SelectNone();
+            foreach (Gate g in gatesInSelectionRectangle)
+            {
+                g.Selected = true;
+            }
+
+            foreach (Wire w in wiresInSelectionRectangle)
+            {
+                w.Selected = true;
+            }
+
+            if (gatesInSelectionRectangle.Count > 0)
+            {
+                if (OnGateSelected != null)
+                {
+                    OnGateSelected(gatesInSelectionRectangle[0]);
+                }
+            }
         }
 
         private void CircuitView_MouseDown(object sender, MouseEventArgs e)
@@ -541,7 +643,9 @@ namespace LCD.Interface
             }
 
             if (d != null)
+            {
                 Dot_MouseDown(d, e.Location);
+            }
             else
             {
                 if (g != null)
@@ -551,13 +655,23 @@ namespace LCD.Interface
                 else
                 {
                     if (wp != null)
+                    {
                         selectedWP = wp;
+                    }
                     else
+                    {
                         if (wire != null)
+                        {
                             Wire_MouseDown(wire);
+                        }
+                        else
+                        {
+                            MouseDownPosition = e.Location;
+                            selectionRectangle = new Rectangle(e.Location, Size.Empty);
+                        }
+                    }
                 }
             }
-
         }
 
         void CircuitView_MouseEnter(object sender, EventArgs e)

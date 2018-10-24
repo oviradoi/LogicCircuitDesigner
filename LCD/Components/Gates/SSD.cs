@@ -43,21 +43,7 @@ namespace LCD.Components.Gates
             int h = 54;
 
             Size = new Size(w, h);
-
-            Pen p;
-
-            if (Selected)
-            {
-                p = new Pen(Color.Blue);
-            }
-            else
-            {
-                p = new Pen(Color.Black);
-            }
-
-            Pen p1 = new Pen(Color.DimGray, 2f);
-            Pen p2 = new Pen(Color.Pink, 2f);
-
+            
             bool T, M, B, UL, LL, UR, LR;
             T = M = B = UL = LL = UR = LR = false;
             while (val >= 16) val %= 16;
@@ -123,13 +109,14 @@ namespace LCD.Components.Gates
 
             g.TranslateTransform(Location.X, Location.Y);
             g.RotateTransform(Angle);
-            
 
+            Pen p = Selected ? Pens.Blue : Pens.Black;
             g.DrawRectangle(p, 1, 1, w - 2, h - 2);
 
-            g.FillRectangle(new SolidBrush(Color.Gray), 1, 1, w - 2, h - 2);
+            g.FillRectangle(Brushes.Gray, 1, 1, w - 2, h - 2);
 
-            
+            Pen p1 = new Pen(Color.DimGray, 2f);
+            Pen p2 = new Pen(Color.Pink, 2f);
 
             g.DrawLine(T ? p2 : p1, 10 + 1, 6, 30 - 1, 6); //Top
             g.DrawLine(M ? p2 : p1, 10 + 1, 27, 30 - 1, 27); //Middle
@@ -153,14 +140,10 @@ namespace LCD.Components.Gates
             int x = Location.X;
             int y = Location.Y;
 
-            Dot dotFirstInput = new Dot(
-                new Point(1, 11), this);
-            Dot dotSecondInput = new Dot(
-                new Point(1, 22), this);
-            Dot dotThirdInput = new Dot(
-                new Point(1, 33), this);
-            Dot dotFourthInput = new Dot(
-                new Point(1, 44), this);
+            Dot dotFirstInput = new Dot(new Point(1, 11), this);
+            Dot dotSecondInput = new Dot(new Point(1, 22), this);
+            Dot dotThirdInput = new Dot(new Point(1, 33), this);
+            Dot dotFourthInput = new Dot(new Point(1, 44), this);
 
             inputs.Add(dotFirstInput);
             inputs.Add(dotSecondInput);
